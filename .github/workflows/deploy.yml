@@ -21,10 +21,11 @@ jobs:
           cache: npm
       - run: npm install
       - name: Sync YouTube playlists
-        if: ${{ secrets.YOUTUBE_API_KEY != '' }}
-        run: npm run sync
+        if: env.HAS_YOUTUBE_API_KEY == 'true'
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          HAS_YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY != '' }}
+        run: npm run sync
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
