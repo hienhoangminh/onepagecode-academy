@@ -20,12 +20,18 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm install
-      - name: Sync YouTube playlists
-        if: env.HAS_YOUTUBE_API_KEY == 'true'
+      - id: youtube-key
+        name: Check whether catalogue sync is configured
+        shell: bash
+        run: |
+          if [ -n "$YOUTUBE_API_KEY" ]; then echo "configured=true" >> "$GITHUB_OUTPUT"; else echo "configured=false" >> "$GITHUB_OUTPUT"; fi
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          HAS_YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY != '' }}
+      - name: Sync YouTube playlists
+        if: steps.youtube-key.outputs.configured == 'true'
         run: npm run sync
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
